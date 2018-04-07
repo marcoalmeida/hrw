@@ -75,9 +75,8 @@ func TestAll(t *testing.T) {
 	for i := 0; i < nItems; i++ {
 		counter[dht.GetNode(strconv.Itoa(i))]++
 	}
-
 	// make sure the distribution is reasonably uniform (off by 2.5% at most)
-	ensureUniformDistribution(counter, nItems, nNodes, 0.025, t)
+	ensureUniformDistribution(counter, nItems, dht.NodesCount(), 0.025, t)
 
 	// remove one node and repeat the queries
 	dht.RemoveNode("0")
@@ -85,9 +84,18 @@ func TestAll(t *testing.T) {
 	for i := 0; i < nItems; i++ {
 		counter[dht.GetNode(strconv.Itoa(i))]++
 	}
-
 	// make sure the distribution is reasonably uniform (off by 3% at most, given that we just removed a node)
-	ensureUniformDistribution(counter, nItems, nNodes-1, 0.03, t)
+	ensureUniformDistribution(counter, nItems, dht.NodesCount(), 0.3, t)
+
+	// add 2 nodes and do it again
+	dht.AddNode(Node{name: "new0", weight: 1})
+	dht.AddNode(Node{name: "new1", weight: 1})
+	counter = make(map[string]int64)
+	for i := 0; i < nItems; i++ {
+		counter[dht.GetNode(strconv.Itoa(i))]++
+	}
+	// make sure the distribution is reasonably uniform (off by 2.5% at most as we have plenty of nodes)
+	ensureUniformDistribution(counter, nItems, dht.NodesCount(), 0.025, t)
 }
 
 func ensureUniformDistribution(counter map[string]int64, nItems int, nNodes int, maxDifference float64, t *testing.T) {
