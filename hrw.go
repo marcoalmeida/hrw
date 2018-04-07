@@ -66,14 +66,14 @@ func (hrw nodes) RemoveNode(node string) error {
 }
 
 func (hrw nodes) GetNode(key string) string {
-	highest_score := -1.0
+	highestScore := -1.0
 	champion := ""
 
 	for node, info := range hrw {
 		score := weightedScore(key, info)
-		if score > highest_score {
+		if score > highestScore {
 			champion = node
-			highest_score = score
+			highestScore = score
 		}
 	}
 
@@ -94,7 +94,7 @@ func weightedScore(key string, node nodeInfo) float64 {
 
 // converts a uniformly random 64-bit integer to uniformly random floating point number on interval [0, 1)
 func int2float(v uint64) float64 {
-	fifty_three_ones := uint64(0xFFFFFFFFFFFFFFFF >> (64 - 53))
-	fifty_three_zeros := float64(1 << 53)
-	return float64(v&fifty_three_ones) / fifty_three_zeros
+	fiftyThreeOnes := uint64(0xFFFFFFFFFFFFFFFF >> (64 - 53))
+	fiftyThreeZeros := float64(1 << 53)
+	return float64(v&fiftyThreeOnes) / fiftyThreeZeros
 }
