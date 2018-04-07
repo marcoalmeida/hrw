@@ -77,29 +77,25 @@ func TestAll(t *testing.T) {
 	}
 
 	// make sure the distribution is reasonably uniform (off by 2.5% at most)
-	for node, count := range counter {
-		ideal := 1.0 / float64(nNodes)
-		pct := float64(count) / float64(nItems)
-		if math.Abs(pct-ideal) > 0.025 {
-			t.Errorf("expected %.2f, got %.2f on node %s\n", ideal, pct, node)
-		}
-	}
+	ensureUniformDistribution(counter, nItems, nNodes, 0.025, t)
 
 	// remove one node and repeat the queries
 	dht.RemoveNode("0")
-
-	// count the number of times a given node is used
 	counter = make(map[string]int64)
 	for i := 0; i < nItems; i++ {
 		counter[dht.GetNode(strconv.Itoa(i))]++
 	}
 
 	// make sure the distribution is reasonably uniform (off by 3% at most, given that we just removed a node)
+	ensureUniformDistribution(counter, nItems, nNodes-1, 0.03, t)
+}
+
+func ensureUniformDistribution(counter map[string]int64, nItems int, nNodes int, maxDifference float64, t *testing.T) {
+
 	for node, count := range counter {
-		// nNodes - 1 because we just removed one node
-		ideal := 1.0 / float64(nNodes-1)
+		ideal := 1.0 / float64(nNodes)
 		pct := float64(count) / float64(nItems)
-		if math.Abs(pct-ideal) > 0.03 {
+		if math.Abs(pct-ideal) > maxDifference {
 			t.Errorf("expected %.2f, got %.2f on node %s\n", ideal, pct, node)
 		}
 	}
