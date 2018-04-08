@@ -28,12 +28,12 @@ func TestNew(t *testing.T) {
 	}
 
 	nodes := []Node{struct {
-		name   string
-		weight float64
-	}{name: "a", weight: 1}, struct {
-		name   string
-		weight float64
-	}{name: "b", weight: 1}}
+		Name   string
+		Weight float64
+	}{Name: "a", Weight: 1}, struct {
+		Name   string
+		Weight float64
+	}{Name: "b", Weight: 1}}
 
 	dht = New(nodes)
 	if dht.NodesCount() != 2 {
@@ -50,8 +50,8 @@ func TestNodes_AddNode(t *testing.T) {
 
 	// add a single node
 	node := Node{
-		name:   "a",
-		weight: 1,
+		Name:   "a",
+		Weight: 1,
 	}
 	err := dht.AddNode(node)
 	if err != nil {
@@ -78,8 +78,8 @@ func TestAll(t *testing.T) {
 	// add nodes
 	for i := 0; i < nNodes; i++ {
 		err = dht.AddNode(Node{
-			name:   strconv.Itoa(i),
-			weight: 1,
+			Name:   strconv.Itoa(i),
+			Weight: 1,
 		})
 		if err != nil {
 			t.Error(err)
@@ -102,8 +102,8 @@ func TestAll(t *testing.T) {
 	ensureUniformDistribution(counter, nItems, dht.NodesCount(), t)
 
 	// add 2 nodes and do it again
-	dht.AddNode(Node{name: "new0", weight: 1})
-	dht.AddNode(Node{name: "new1", weight: 1})
+	dht.AddNode(Node{Name: "new0", Weight: 1})
+	dht.AddNode(Node{Name: "new1", Weight: 1})
 	counter = make(map[string]int64)
 	for i := 0; i < nItems; i++ {
 		counter[dht.GetNode(randomString(itemLength))]++

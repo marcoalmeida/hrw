@@ -8,8 +8,8 @@ import (
 )
 
 type Node struct {
-	name   string
-	weight float64
+	Name   string
+	Weight float64
 }
 
 type nodeInfo struct {
@@ -17,16 +17,16 @@ type nodeInfo struct {
 	weight float64
 }
 
-// mapping on nodes: name -> weight
+// mapping on nodes: Name -> Weight
 type nodes map[string]nodeInfo
 
 func New(nodesList []Node) nodes {
 	// we need fast lookups -> transform the input list into a dictionary
 	nodes := make(map[string]nodeInfo)
 	for _, n := range nodesList {
-		nodes[n.name] = nodeInfo{
-			weight: n.weight,
-			hash:   hash64(n.name),
+		nodes[n.Name] = nodeInfo{
+			weight: n.Weight,
+			hash:   hash64(n.Name),
 		}
 	}
 
@@ -38,15 +38,15 @@ func (hrw nodes) NodesCount() int {
 }
 
 func (hrw nodes) AddNode(node Node) error {
-	_, ok := hrw[node.name]
+	_, ok := hrw[node.Name]
 
 	if ok {
 		return errors.New("node already exists")
 	}
 
-	hrw[node.name] = nodeInfo{
-		weight: node.weight,
-		hash:   hash64(node.name),
+	hrw[node.Name] = nodeInfo{
+		weight: node.Weight,
+		hash:   hash64(node.Name),
 	}
 
 	return nil
