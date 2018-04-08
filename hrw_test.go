@@ -71,8 +71,8 @@ func TestNodes_AddNode(t *testing.T) {
 func TestAll(t *testing.T) {
 	var err error
 	dht := New(nil)
-	nNodes := 5
-	nItems := 1000
+	nNodes := 7
+	nItems := 10000
 	itemLength := 11
 
 	// add nodes

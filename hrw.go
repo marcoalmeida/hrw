@@ -4,6 +4,7 @@ import (
 	"errors"
 	"hash/fnv"
 	"math"
+	"sort"
 )
 
 type Node struct {
@@ -63,19 +64,42 @@ func (hrw nodes) RemoveNode(node string) error {
 	return nil
 }
 
-func (hrw nodes) GetNode(key string) string {
-	highestScore := -1.0
-	champion := ""
+type pair struct {
+	k string
+	v float64
+}
 
+type pairList []pair
+
+func (p pairList) Len() int           { return len(p) }
+func (p pairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p pairList) Less(i, j int) bool { return p[i].v < p[j].v }
+
+func (hrw nodes) GetNodesRanked(key string) []string {
+	rank := make(pairList, hrw.NodesCount())
+	nodes := make([]string, hrw.NodesCount())
+
+	// compute the score for all nodes
+	i := 0
 	for name, info := range hrw {
 		score := weightedScore(key, info.hash, info.weight)
-		if score > highestScore {
-			champion = name
-			highestScore = score
-		}
+		rank[i] = pair{k: name, v: score}
+		i++
 	}
 
-	return champion
+	// sort the rank list (descending)
+	sort.Sort(sort.Reverse(rank))
+
+	// create and return all nodes (ranked)
+	for j, p := range rank {
+		nodes[j] = p.k
+	}
+
+	return nodes
+}
+
+func (hrw nodes) GetNode(key string) string {
+	return hrw.GetNodesRanked(key)[0]
 }
 
 func weightedScore(key string, nodeHash uint64, nodeWeight float64) float64 {
