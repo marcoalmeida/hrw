@@ -18,9 +18,9 @@ type nodeInfo struct {
 }
 
 // mapping on nodes: Name -> Weight
-type nodes map[string]nodeInfo
+type Nodes map[string]nodeInfo
 
-func New(nodesList []Node) nodes {
+func New(nodesList []Node) Nodes {
 	// we need fast lookups -> transform the input list into a dictionary
 	nodes := make(map[string]nodeInfo)
 	for _, n := range nodesList {
@@ -33,11 +33,11 @@ func New(nodesList []Node) nodes {
 	return nodes
 }
 
-func (hrw nodes) NodesCount() int {
+func (hrw Nodes) NodesCount() int {
 	return len(hrw)
 }
 
-func (hrw nodes) AddNode(node Node) error {
+func (hrw Nodes) AddNode(node Node) error {
 	_, ok := hrw[node.Name]
 
 	if ok {
@@ -52,7 +52,7 @@ func (hrw nodes) AddNode(node Node) error {
 	return nil
 }
 
-func (hrw nodes) RemoveNode(node string) error {
+func (hrw Nodes) RemoveNode(node string) error {
 	_, ok := hrw[node]
 
 	if !ok {
@@ -75,7 +75,7 @@ func (p pairList) Len() int           { return len(p) }
 func (p pairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p pairList) Less(i, j int) bool { return p[i].v < p[j].v }
 
-func (hrw nodes) GetNodesRanked(key string) []string {
+func (hrw Nodes) GetNodesRanked(key string) []string {
 	rank := make(pairList, hrw.NodesCount())
 	nodes := make([]string, hrw.NodesCount())
 
@@ -98,7 +98,7 @@ func (hrw nodes) GetNodesRanked(key string) []string {
 	return nodes
 }
 
-func (hrw nodes) GetNode(key string) string {
+func (hrw Nodes) GetNode(key string) string {
 	return hrw.GetNodesRanked(key)[0]
 }
 
