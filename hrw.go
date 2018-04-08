@@ -4,8 +4,6 @@ import (
 	"errors"
 	"hash/fnv"
 	"math"
-	"math/rand"
-	"strconv"
 )
 
 type Node struct {
@@ -14,11 +12,11 @@ type Node struct {
 }
 
 type nodeInfo struct {
-	// use an array of bytes to avoid conversions on all calls to the hash function
-	seed   []byte
+	hash   uint64
 	weight float64
 }
 
+// mapping on nodes: name -> weight
 type nodes map[string]nodeInfo
 
 func New(nodesList []Node) nodes {
@@ -27,7 +25,7 @@ func New(nodesList []Node) nodes {
 	for _, n := range nodesList {
 		nodes[n.name] = nodeInfo{
 			weight: n.weight,
-			seed:   []byte(strconv.Itoa(int(rand.Int63()))),
+			hash:   hash64(n.name),
 		}
 	}
 
@@ -47,7 +45,7 @@ func (hrw nodes) AddNode(node Node) error {
 
 	hrw[node.name] = nodeInfo{
 		weight: node.weight,
-		seed:   []byte(strconv.Itoa(int(rand.Int63()))),
+		hash:   hash64(node.name),
 	}
 
 	return nil
@@ -69,10 +67,10 @@ func (hrw nodes) GetNode(key string) string {
 	highestScore := -1.0
 	champion := ""
 
-	for node, info := range hrw {
-		score := weightedScore(key, info)
+	for name, info := range hrw {
+		score := weightedScore(key, info.hash, info.weight)
 		if score > highestScore {
-			champion = node
+			champion = name
 			highestScore = score
 		}
 	}
@@ -80,16 +78,31 @@ func (hrw nodes) GetNode(key string) string {
 	return champion
 }
 
-func weightedScore(key string, node nodeInfo) float64 {
+func weightedScore(key string, nodeHash uint64, nodeWeight float64) float64 {
+	hash := mergeHashes(hash64(key), nodeHash)
+	score := 1.0 / -math.Log(int2float(hash))
+
+	return nodeWeight * score
+}
+
+func hash64(key string) uint64 {
 	h := fnv.New64a()
 	h.Write([]byte(key))
-	// this hash function does not support seeding, but we can
-	// obtain a similar result by concatenating the seed
-	h.Write(node.seed)
+	return h.Sum64()
+}
 
-	score := 1.0 / -math.Log(int2float(h.Sum64()))
+func mergeHashes(x uint64, y uint64) uint64 {
+	// 18446744073709551616 == 2**64-1
+	const twoToSixtyFour = 18446744073709551615
 
-	return node.weight * score
+	acc := x ^ y
+	acc ^= acc >> 33
+	acc = (acc * 0xff51afd7ed558ccd) % twoToSixtyFour
+	acc ^= acc >> 33
+	acc = (acc * 0xc4ceb9fe1a85ec53) % twoToSixtyFour
+	acc ^= acc >> 33
+
+	return acc
 }
 
 // converts a uniformly random 64-bit integer to uniformly random floating point number on interval [0, 1)
