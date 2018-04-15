@@ -40,8 +40,10 @@ func (hrw Nodes) NodesCount() int {
 func (hrw Nodes) GetAllNodes() []string {
 	nodes := make([]string, hrw.NodesCount())
 
-	for name, _ := range hrw {
-		nodes = append(nodes, name)
+	i := 0
+	for name := range hrw {
+		nodes[i] = name
+		i++
 	}
 
 	return nodes
