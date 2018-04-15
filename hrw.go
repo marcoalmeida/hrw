@@ -37,6 +37,16 @@ func (hrw Nodes) NodesCount() int {
 	return len(hrw)
 }
 
+func (hrw Nodes) GetAllNodes() []string {
+	nodes := make([]string, hrw.NodesCount())
+
+	for name, _ := range hrw {
+		nodes = append(nodes, name)
+	}
+
+	return nodes
+}
+
 func (hrw Nodes) AddNode(node Node) error {
 	_, ok := hrw[node.Name]
 
